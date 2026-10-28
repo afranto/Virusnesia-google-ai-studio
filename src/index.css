@@ -1,0 +1,299 @@
+@import "tailwindcss";
+
+@layer base {
+  * {
+    box-sizing: border-box;
+  }
+  
+  html {
+    scroll-behavior: smooth;
+    font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+  }
+
+  body {
+    background-color: #f8fafc;
+    color: #0f172a;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+}
+
+/* Animations for biological simulations */
+@keyframes pulseSubtle {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 0.95;
+  }
+  50% {
+    transform: scale(1.02);
+    opacity: 1;
+  }
+}
+
+@keyframes dnaFlow {
+  0% {
+    stroke-dashoffset: 0;
+  }
+  100% {
+    stroke-dashoffset: -30;
+  }
+}
+
+@keyframes floatGentle {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-5px);
+  }
+}
+
+@keyframes burstScale {
+  0% {
+    transform: scale(0.6);
+    opacity: 0;
+  }
+  60% {
+    transform: scale(1.08);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.anim-pulse-subtle {
+  animation: pulseSubtle 3s ease-in-out infinite;
+}
+
+.anim-dna-flow {
+  animation: dnaFlow 1.8s linear infinite;
+}
+
+.anim-float {
+  animation: floatGentle 4s ease-in-out infinite;
+}
+
+.anim-burst {
+  animation: burstScale 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* Keyframe for virus descent during adsorption */
+@keyframes virusDescent {
+  0% {
+    transform: translateY(-50px);
+    opacity: 0.6;
+  }
+  60% {
+    transform: translateY(5px);
+  }
+  100% {
+    transform: translateY(0px);
+    opacity: 1;
+  }
+}
+
+.anim-descent {
+  animation: virusDescent 1.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* Keyframe for DNA injection through tail tube */
+@keyframes dnaInjection {
+  0% {
+    stroke-dashoffset: 120;
+    opacity: 0.2;
+  }
+  100% {
+    stroke-dashoffset: 0;
+    opacity: 1;
+  }
+}
+
+.anim-dna-inject {
+  stroke-dasharray: 120;
+  animation: dnaInjection 2s ease-out forwards;
+}
+
+/* Continuous streaming DNA injection */
+@keyframes dnaStreamLoop {
+  0% {
+    stroke-dashoffset: 80;
+  }
+  100% {
+    stroke-dashoffset: -80;
+  }
+}
+
+.anim-dna-stream {
+  stroke-dasharray: 12 8;
+  animation: dnaStreamLoop 1.2s linear infinite;
+}
+
+/* Traveling DNA particle pulse */
+@keyframes particleDown {
+  0% {
+    transform: translateY(-40px);
+    opacity: 0;
+  }
+  30% {
+    opacity: 1;
+  }
+  80% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(60px);
+    opacity: 0;
+  }
+}
+
+.anim-particle-down {
+  animation: particleDown 1.5s linear infinite;
+}
+
+/* Assembly Convergence Animation: Components moving in to assemble */
+@keyframes assembleHeadIn {
+  0% { transform: translate(-30px, -20px) scale(0.7); opacity: 0.4; }
+  60% { transform: translate(0px, 0px) scale(1); opacity: 1; }
+  100% { transform: translate(0px, 0px) scale(1); opacity: 1; }
+}
+
+@keyframes assembleTailIn {
+  0% { transform: translate(25px, 20px) scale(0.6); opacity: 0.3; }
+  60% { transform: translate(0px, 0px) scale(1); opacity: 1; }
+  100% { transform: translate(0px, 0px) scale(1); opacity: 1; }
+}
+
+@keyframes assembleFibersIn {
+  0% { transform: translate(0px, 30px) scale(0.5); opacity: 0.2; }
+  75% { transform: translate(0px, 0px) scale(1); opacity: 1; }
+  100% { transform: translate(0px, 0px) scale(1); opacity: 1; }
+}
+
+.anim-assemble-head {
+  animation: assembleHeadIn 3s cubic-bezier(0.25, 1, 0.5, 1) infinite;
+}
+
+.anim-assemble-tail {
+  animation: assembleTailIn 3s cubic-bezier(0.25, 1, 0.5, 1) infinite;
+}
+
+.anim-assemble-fibers {
+  animation: assembleFibersIn 3s cubic-bezier(0.25, 1, 0.5, 1) infinite;
+}
+
+/* Continuous Radial Drift for Virions Escaping Lysis */
+@keyframes escapeDrift1 {
+  0% { transform: translate(0, 0) scale(0.6); opacity: 0.5; }
+  100% { transform: translate(-90px, -70px) scale(0.85); opacity: 1; }
+}
+
+@keyframes escapeDrift2 {
+  0% { transform: translate(0, 0) scale(0.6); opacity: 0.5; }
+  100% { transform: translate(90px, -65px) scale(0.85); opacity: 1; }
+}
+
+@keyframes escapeDrift3 {
+  0% { transform: translate(0, 0) scale(0.6); opacity: 0.5; }
+  100% { transform: translate(-100px, 60px) scale(0.85); opacity: 1; }
+}
+
+@keyframes escapeDrift4 {
+  0% { transform: translate(0, 0) scale(0.6); opacity: 0.5; }
+  100% { transform: translate(100px, 65px) scale(0.85); opacity: 1; }
+}
+
+.anim-escape-1 { animation: escapeDrift1 4s ease-out infinite; }
+.anim-escape-2 { animation: escapeDrift2 4.5s ease-out infinite; }
+.anim-escape-3 { animation: escapeDrift3 3.8s ease-out infinite; }
+.anim-escape-4 { animation: escapeDrift4 4.2s ease-out infinite; }
+
+/* Prophage Integration Movement */
+@keyframes prophageIntegrate {
+  0% {
+    transform: translate(0, -35px) scale(0.7);
+    opacity: 0.5;
+  }
+  50% {
+    transform: translate(25px, -10px) scale(0.9);
+    opacity: 0.9;
+  }
+  100% {
+    transform: translate(45px, 0px) scale(1);
+    opacity: 1;
+    filter: drop-shadow(0 0 10px #d946ef);
+  }
+}
+
+.anim-prophage-integrate {
+  animation: prophageIntegrate 3.5s cubic-bezier(0.16, 1, 0.3, 1) infinite alternate;
+}
+
+/* Binary Fission Dynamic Cleavage & Separation */
+@keyframes fissionLeftCell {
+  0% { transform: translateX(50px) scale(0.9); }
+  50% { transform: translateX(20px) scale(0.95); }
+  100% { transform: translateX(-15px) scale(1); }
+}
+
+@keyframes fissionRightCell {
+  0% { transform: translateX(-50px) scale(0.9); }
+  50% { transform: translateX(-20px) scale(0.95); }
+  100% { transform: translateX(15px) scale(1); }
+}
+
+@keyframes furrowPinch {
+  0% { transform: scaleY(0.1); opacity: 0.2; }
+  50% { transform: scaleY(0.6); opacity: 0.7; }
+  100% { transform: scaleY(1); opacity: 1; }
+}
+
+.anim-fission-left {
+  animation: fissionLeftCell 5s ease-in-out infinite alternate;
+}
+
+.anim-fission-right {
+  animation: fissionRightCell 5s ease-in-out infinite alternate;
+}
+
+.anim-furrow-pinch {
+  animation: furrowPinch 5s ease-in-out infinite alternate;
+}
+
+/* Excision Animation: Prophage popping out */
+@keyframes excisionPop {
+  0% { transform: translateY(0) scale(0.85); opacity: 0.9; }
+  50% { transform: translateY(-25px) scale(1.1); opacity: 1; filter: drop-shadow(0 0 12px #f43f5e); }
+  100% { transform: translateY(-40px) scale(1); opacity: 1; filter: drop-shadow(0 0 8px #a855f7); }
+}
+
+.anim-excision {
+  animation: excisionPop 3s cubic-bezier(0.16, 1, 0.3, 1) infinite alternate;
+}
+
+/* Keyframe for clickable object pulse highlight */
+@keyframes objectHighlight {
+  0%, 100% {
+    stroke-width: 3.5px;
+    filter: drop-shadow(0 0 4px #38bdf8);
+  }
+  50% {
+    stroke-width: 5px;
+    filter: drop-shadow(0 0 10px #0284c7);
+  }
+}
+
+.anim-highlight {
+  animation: objectHighlight 1.5s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, ::before, ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+

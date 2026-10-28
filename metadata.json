@@ -1,0 +1,6 @@
+{
+  "name": "VIRUSNESIA - Replikasi Virus Biologi SMA",
+  "description": "Media pembelajaran interaktif Biologi kelas X SMA materi replikasi virus (siklus litik dan lisogenik) berbasis Learning Cycle 5E.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
