@@ -1,4 +1,24 @@
-export type LearningPhase = 'home' | 'engage' | 'explore' | 'explain' | 'elaborate' | 'evaluate' | 'reflect';
+export type LearningPhase =
+  | 'home'
+  | 'materi-awal'
+  | 'engage'
+  | 'explore'
+  | 'explain'
+  | 'elaborate'
+  | 'evaluate'
+  | 'reflect';
+
+export interface StudentIdentity {
+  namaLengkap: string;
+  kelas: string;
+  avatarInitials: string;
+}
+
+export interface OrientationBlocksOpened {
+  objectives: boolean; // Blok 1: Tujuan Belajar
+  principles: boolean; // Blok 2: Prinsip Mindful, Meaningful, Joyful
+  guide: boolean;      // Blok 3: Petunjuk Penggunaan
+}
 
 export interface BacteriophagePart {
   id: string;
@@ -17,6 +37,25 @@ export interface InteractiveSvgObject {
   category: 'virus' | 'host' | 'dna' | 'enzyme';
   summary: string;
   scientificRole: string;
+  molecularFormula?: string;
+  scaleNm?: number;
+}
+
+export interface LabPredictionOption {
+  id: string;
+  text: string;
+  isCorrect: boolean;
+  feedback: string;
+}
+
+export interface LabPrediction {
+  id: string;
+  stepNumber: number;
+  question: string;
+  hypothesisPrompt: string;
+  options: LabPredictionOption[];
+  scientificExplanation: string;
+  observedPhenomenon: string;
 }
 
 export interface SimulationStep {
@@ -82,6 +121,10 @@ export interface UserProgress {
   lastUpdated: string;
   currentPhase: LearningPhase;
   activeExploreTab: 'structure' | 'lytic' | 'lysogenic' | 'notes' | 'compare';
+  
+  // Student Identity & Orientation (Stage 1)
+  student: StudentIdentity;
+  orientationBlocks: OrientationBlocksOpened;
   
   // Phase 1: Engage
   engage: {

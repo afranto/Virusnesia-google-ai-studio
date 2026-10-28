@@ -1,289 +1,764 @@
-import React from 'react';
-import { LearningPhase, UserProgress } from '../types';
-import { calculateOverallProgress } from '../utils/storage';
+import React, { useState } from 'react';
+import { UserProgress, StudentIdentity, OrientationBlocksOpened } from '../types';
 import {
+  isStudentIdentityValid,
+  areAllOrientationBlocksOpened,
+  canStartLearning,
+  getStudentInitials,
+} from '../utils/storage';
+import {
+  Brain,
+  Cog,
+  Lightbulb,
+  BarChart3,
+  Scale,
+  PenTool,
+  Smile,
+  Link as LinkIcon,
+  Star,
+  Info,
   ArrowRight,
-  Sparkles,
-  Compass,
-  CheckCircle2,
   BookOpen,
-  Microscope,
-  HelpCircle,
-  FileSpreadsheet,
-  Award,
-  RotateCcw,
+  CheckCircle2,
+  ChevronDown,
+  ChevronUp,
+  AlertCircle,
+  Sparkles,
+  User,
+  GraduationCap,
 } from 'lucide-react';
 
 interface HomeSectionProps {
   progress: UserProgress;
-  onNavigate: (phase: LearningPhase) => void;
-  onResetProgress: () => void;
+  onUpdateIdentity: (identity: StudentIdentity) => void;
+  onOpenOrientationBlock: (blockKey: keyof OrientationBlocksOpened) => void;
+  onStartLearning: () => void;
+  onOpenMateriAwal: () => void;
 }
 
 export const HomeSection: React.FC<HomeSectionProps> = ({
   progress,
-  onNavigate,
-  onResetProgress,
+  onUpdateIdentity,
+  onOpenOrientationBlock,
+  onStartLearning,
+  onOpenMateriAwal,
 }) => {
-  const { percentage, completedPhases, totalPhases, phaseStatus } = calculateOverallProgress(progress);
-  const hasStarted = percentage > 0;
+  const { student, orientationBlocks } = progress;
 
-  const cycleStages = [
+  // Local state for interactive accordion open/close of blocks
+  // Default opened state is initialized with persistent stored state
+  const [openBlocks, setOpenBlocks] = useState({
+    objectives: orientationBlocks.objectives || true, // default first one visible for immediate immersion
+    principles: orientationBlocks.principles || false,
+    guide: orientationBlocks.guide || false,
+  });
+
+  const isIdentityValid = isStudentIdentityValid(student);
+  const allBlocksOpened = areAllOrientationBlocksOpened(orientationBlocks);
+  const canStart = canStartLearning(student, orientationBlocks);
+
+  const handleToggleBlock = (blockKey: keyof OrientationBlocksOpened) => {
+    const nextState = !openBlocks[blockKey];
+    setOpenBlocks((prev) => ({ ...prev, [blockKey]: nextState }));
+    if (nextState) {
+      onOpenOrientationBlock(blockKey);
+    }
+  };
+
+  const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newName = e.target.value;
+    const initials = getStudentInitials(newName);
+    onUpdateIdentity({
+      ...student,
+      namaLengkap: newName,
+      avatarInitials: initials,
+    });
+  };
+
+  const handleClassChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const newClass = e.target.value;
+    onUpdateIdentity({
+      ...student,
+      kelas: newClass,
+    });
+  };
+
+  // Six Learning Objective cards matching C1-C6 from prompt and image
+  const objectives = [
     {
-      phase: 'engage' as LearningPhase,
-      number: '01',
-      title: 'Engage',
-      subtitle: 'Ayo Berpikir',
-      description: 'Gali rasa ingin tahu & pemahaman awal melalui fenomena perbanyakan virus.',
-      icon: HelpCircle,
-      accentColor: 'text-amber-600 bg-amber-50 border-amber-200',
-      done: phaseStatus.engage,
+      code: 'C1',
+      badgeText: 'Mengingat',
+      badgeColor: 'bg-red-500 text-white',
+      cardBorder: 'border-red-200 hover:border-red-300',
+      icon: Brain,
+      iconColor: 'text-red-500',
+      text: 'Kamu bisa menyebutkan bagian-bagian bakteriofag: kepala, materi genetik, ekor, dan serabut ekor.',
     },
     {
-      phase: 'explore' as LearningPhase,
-      number: '02',
-      title: 'Explore',
-      subtitle: 'Ayo Bereksplorasi',
-      description: 'Model anatomi 3D bakteriofag & animasi vektor siklus litik serta lisogenik.',
-      icon: Microscope,
-      accentColor: 'text-blue-600 bg-blue-50 border-blue-200',
-      done: phaseStatus.explore,
+      code: 'C2',
+      badgeText: 'Memahami',
+      badgeColor: 'bg-orange-500 text-white',
+      cardBorder: 'border-orange-200 hover:border-orange-300',
+      icon: Cog,
+      iconColor: 'text-orange-500',
+      text: 'Kamu bisa menjelaskan tahap siklus litik dan siklus lisogenik.',
     },
     {
-      phase: 'explain' as LearningPhase,
-      number: '03',
-      title: 'Explain',
-      subtitle: 'Ayo Menjelaskan',
-      description: 'Matriks perbandingan ilmiah, glosarium interaktif, dan pembuktian konsep.',
-      icon: BookOpen,
-      accentColor: 'text-indigo-600 bg-indigo-50 border-indigo-200',
-      done: phaseStatus.explain,
+      code: 'C3',
+      badgeText: 'Menerapkan',
+      badgeColor: 'bg-amber-500 text-white',
+      cardBorder: 'border-amber-200 hover:border-amber-300',
+      icon: Lightbulb,
+      iconColor: 'text-amber-500',
+      text: 'Kamu bisa memprediksi apa yang terjadi jika satu tahap replikasi terhambat.',
     },
     {
-      phase: 'elaborate' as LearningPhase,
-      number: '04',
-      title: 'Elaborate',
-      subtitle: 'Ayo Menerapkan',
-      description: 'Pemecahan masalah nyata: terapi bakteriofag, latensi HIV, dan vaksin.',
-      icon: FileSpreadsheet,
-      accentColor: 'text-purple-600 bg-purple-50 border-purple-200',
-      done: phaseStatus.elaborate,
+      code: 'C4',
+      badgeText: 'Menganalisis',
+      badgeColor: 'bg-emerald-600 text-white',
+      cardBorder: 'border-emerald-200 hover:border-emerald-300',
+      icon: BarChart3,
+      iconColor: 'text-emerald-600',
+      text: 'Kamu bisa membandingkan jalur litik dan lisogenik serta membaca data populasi bakteri dan virus.',
     },
     {
-      phase: 'evaluate' as LearningPhase,
-      number: '05',
-      title: 'Evaluate',
-      subtitle: 'Ayo Menguji',
-      description: 'Kuis formatif 5 soal HOTS dengan analisis komprehensif & skor.',
-      icon: Award,
-      accentColor: 'text-emerald-600 bg-emerald-50 border-emerald-200',
-      done: phaseStatus.evaluate,
+      code: 'C5',
+      badgeText: 'Mengevaluasi',
+      badgeColor: 'bg-sky-600 text-white',
+      cardBorder: 'border-sky-200 hover:border-sky-300',
+      icon: Scale,
+      iconColor: 'text-sky-600',
+      text: 'Kamu bisa menilai sebuah klaim atau upaya pencegahan berdasarkan tahap yang dihambat.',
+    },
+    {
+      code: 'C6',
+      badgeText: 'Mencipta',
+      badgeColor: 'bg-purple-600 text-white',
+      cardBorder: 'border-purple-200 hover:border-purple-300',
+      icon: PenTool,
+      iconColor: 'text-purple-600',
+      text: 'Kamu bisa merancang model, rencana penyelidikan, dan rekomendasi untuk satu kasus.',
+    },
+  ];
+
+  // Mindful, Meaningful, Joyful cards
+  const principles = [
+    {
+      title: 'Mindful',
+      subtitle: 'Belajar dengan tenang dan penuh perhatian.',
+      detail: 'Tidak ada peringkat dan tidak ada penghitung waktu.',
+      icon: Smile,
+      iconBg: 'bg-emerald-100 text-emerald-700',
+      borderColor: 'border-emerald-200',
+    },
+    {
+      title: 'Meaningful',
+      subtitle: 'Hubungkan materi dengan pengalaman sehari-hari.',
+      detail: 'Misalnya pilek dan antibiotik dalam kehidupan nyata.',
+      icon: LinkIcon,
+      iconBg: 'bg-teal-100 text-teal-700',
+      borderColor: 'border-teal-200',
+    },
+    {
+      title: 'Joyful',
+      subtitle: 'Belajar dengan mencoba langsung.',
+      detail: 'Bukan dengan berlomba, melainkan menjelajah secara aktif.',
+      icon: Star,
+      iconBg: 'bg-purple-100 text-purple-700',
+      borderColor: 'border-purple-200',
+    },
+  ];
+
+  // Seven usage instruction cards
+  const instructions = [
+    {
+      number: 1,
+      title: 'Ikuti fase dari atas ke bawah.',
+      detail: 'Fase berikutnya terbuka setelah fase sekarang selesai.',
+    },
+    {
+      number: 2,
+      title: 'Selesai berarti kamu sudah menjawab dan mengirim.',
+      detail: 'Jawaban tidak harus benar saat itu.',
+    },
+    {
+      number: 3,
+      title: 'Jika macet, klik ikon bantuan.',
+      detail: 'Bantuan bertambah bertahap dan dapat dimatikan.',
+    },
+    {
+      number: 4,
+      title: 'Ikon buku di pojok membuka glosarium kapan saja.',
+      detail: 'Gunakan untuk mencari istilah penting.',
+    },
+    {
+      number: 5,
+      title: 'Identitas digunakan kembali pada setiap aktivitas.',
+      detail: 'Isi nama dan kelas satu kali.',
+    },
+    {
+      number: 6,
+      title: 'Gunakan tombol jeda dan ulang untuk animasi.',
+      detail: 'Opsi gambar diam tersedia.',
+    },
+    {
+      number: 7,
+      title: 'Website tidak memakai suara.',
+      detail: 'Teks dan gambar menjelaskan seluruh isi. Komputer disarankan tetapi ponsel tetap dapat digunakan.',
     },
   ];
 
   return (
-    <div className="max-w-[1100px] mx-auto px-4 py-8 sm:py-12 flex flex-col gap-10">
-      {/* Hero Section */}
-      <div className="bg-gradient-to-br from-slate-900 via-blue-950 to-slate-900 text-white rounded-3xl p-6 sm:p-10 border border-slate-800 shadow-xl relative overflow-hidden">
-        {/* Subtle decorative background circles */}
-        <div className="absolute -right-20 -top-20 w-80 h-80 rounded-full bg-blue-500/10 blur-3xl pointer-events-none" />
-        <div className="absolute right-1/3 -bottom-20 w-60 h-60 rounded-full bg-purple-500/10 blur-2xl pointer-events-none" />
+    <div className="max-w-[1240px] mx-auto px-4 sm:px-6 py-6 sm:py-10 flex flex-col gap-8">
+      {/* ============================================================== */}
+      {/* HERO SECTION: Title, Phage Diagram, & Identity Form */}
+      {/* ============================================================== */}
+      <div className="bg-gradient-to-br from-[#F0F6FF] via-white to-[#F0F4FF] rounded-3xl p-6 sm:p-8 lg:p-10 border border-[#D0E2FF] shadow-sm relative overflow-hidden">
+        {/* Soft background accents */}
+        <div className="absolute top-0 right-0 w-96 h-96 bg-blue-100/50 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute bottom-0 left-1/4 w-80 h-80 bg-purple-100/40 rounded-full blur-3xl pointer-events-none" />
 
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center relative z-10">
-          {/* Left Text & Call-To-Action (7 cols) */}
-          <div className="lg:col-span-7 flex flex-col items-start gap-4">
-            <div className="flex items-center gap-2 text-xs font-semibold text-blue-300">
-              <span className="bg-blue-900/60 border border-blue-700/60 px-3 py-1 rounded-full flex items-center gap-1.5">
-                <Sparkles className="w-3.5 h-3.5 text-blue-400" />
-                Biologi Kelas X SMA · Kurikulum Merdeka
-              </span>
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start relative z-10">
+          {/* Left Column (7 cols): Heading & Anatomical Bacteriophage Illustration */}
+          <div className="lg:col-span-7 flex flex-col gap-4">
+            <div>
+              <div className="flex items-center gap-2 mb-1">
+                <span className="font-heading font-extrabold text-2xl sm:text-3xl lg:text-4xl tracking-tight text-[#0F2942]">
+                  VIRUSNESIA
+                </span>
+              </div>
+              <h1 className="font-heading font-bold text-xl sm:text-2xl text-[#1A73E8]">
+                Yuk, kenali virus lebih dekat!
+              </h1>
+              <p className="text-sm sm:text-base text-slate-600 mt-1 max-w-lg leading-relaxed">
+                Belajar tentang bakteriofag dan cara virus berkembang biak.
+              </p>
             </div>
 
-            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight leading-[1.15] text-white">
-              Jelajahi Dunia Virus.
-            </h1>
-
-            <p className="text-base sm:text-lg text-slate-300 font-normal leading-relaxed max-w-xl">
-              Kenali struktur, pahami replikasi, pecahkan masalah ilmiah. Media pembelajaran multimedia interaktif berbasis <span className="text-white font-semibold">Learning Cycle 5E</span>.
-            </p>
-
-            {/* Action Buttons */}
-            <div className="flex flex-wrap items-center gap-3 pt-2">
-              <button
-                type="button"
-                onClick={() => onNavigate(hasStarted ? progress.currentPhase === 'home' ? 'engage' : progress.currentPhase : 'engage')}
-                className="h-12 px-6 rounded-xl bg-blue-600 hover:bg-blue-500 active:bg-blue-700 text-white font-bold text-sm transition-all shadow-md hover:shadow-blue-500/25 flex items-center gap-2 cursor-pointer"
+            {/* Bacteriophage & Bacterial Cell Visual Diagram with Leader Lines */}
+            <div className="w-full bg-white/90 backdrop-blur-xs rounded-2xl border border-blue-100 p-4 sm:p-5 shadow-inner relative flex items-center justify-center">
+              <svg
+                viewBox="0 0 540 320"
+                className="w-full h-auto max-w-[480px]"
+                aria-label="Diagram Bakteriofag menempel pada sel bakteri dengan label anatomi"
               >
-                <span>{hasStarted ? 'Lanjutkan Belajar' : 'Mulai Belajar'}</span>
-                <ArrowRight className="w-4 h-4" />
-              </button>
-
-              {hasStarted && (
-                <button
-                  type="button"
-                  onClick={() => onNavigate('engage')}
-                  className="h-12 px-5 rounded-xl bg-white/10 hover:bg-white/15 text-slate-200 text-sm font-semibold border border-white/10 transition-colors"
-                >
-                  Mulai dari Fase 1
-                </button>
-              )}
-            </div>
-
-            {/* Progress Microbar */}
-            <div className="w-full max-w-md mt-3 pt-3 border-t border-slate-800/80 flex items-center justify-between text-xs text-slate-400">
-              <span className="flex items-center gap-1.5">
-                <Compass className="w-4 h-4 text-blue-400" />
-                Progres Belajar: <strong className="text-white">{percentage}%</strong> ({completedPhases}/{totalPhases} Fase)
-              </span>
-              {hasStarted && (
-                <button
-                  type="button"
-                  onClick={onResetProgress}
-                  className="text-slate-400 hover:text-red-400 text-xs flex items-center gap-1 transition-colors"
-                  title="Mulai Ulang Progres"
-                >
-                  <RotateCcw className="w-3 h-3" />
-                  Reset
-                </button>
-              )}
-            </div>
-          </div>
-
-          {/* Right Hero Graphic: Dynamic Bacteriophage Hero SVG (5 cols) */}
-          <div className="lg:col-span-5 flex items-center justify-center">
-            <div className="w-full max-w-[320px] aspect-square bg-slate-800/50 rounded-2xl border border-slate-700/60 p-4 relative flex items-center justify-center overflow-hidden shadow-inner">
-              <svg viewBox="0 0 300 300" className="w-full h-full anim-pulse-subtle">
                 <defs>
-                  <linearGradient id="heroPhageHead" x1="0%" y1="0%" x2="100%" y2="100%">
-                    <stop offset="0%" stopColor="#a855f7" />
-                    <stop offset="100%" stopColor="#6b21a8" />
+                  {/* Gradients */}
+                  <linearGradient id="phageHeadGradHero" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stopColor="#8B5CF6" />
+                    <stop offset="50%" stopColor="#6D28D9" />
+                    <stop offset="100%" stopColor="#4C1D95" />
                   </linearGradient>
+                  <linearGradient id="bactSurfaceGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stopColor="#581C87" />
+                    <stop offset="50%" stopColor="#3B0764" />
+                    <stop offset="100%" stopColor="#1E1B4B" />
+                  </linearGradient>
+                  <filter id="heroGlow" x="-20%" y="-20%" width="140%" height="140%">
+                    <feGaussianBlur stdDeviation="3" result="blur" />
+                    <feComposite in="SourceGraphic" in2="blur" operator="over" />
+                  </filter>
                 </defs>
 
-                {/* Bacterial Wall Arc at bottom */}
-                <path d="M 10,270 Q 150,220 290,270" fill="none" stroke="#10b981" strokeWidth="8" strokeOpacity="0.4" />
-                <path d="M 10,270 Q 150,220 290,270" fill="none" stroke="#34d399" strokeWidth="3" />
+                {/* Bacterial Cell Curved Surface at Bottom */}
+                <path
+                  d="M 20 280 Q 270 215 520 280 L 520 320 L 20 320 Z"
+                  fill="url(#bactSurfaceGrad)"
+                  stroke="#A855F7"
+                  strokeWidth="3"
+                />
+                {/* Bacterial membrane texture dots/ribs */}
+                <path
+                  d="M 40 280 Q 270 225 500 280"
+                  fill="none"
+                  stroke="#C084FC"
+                  strokeWidth="1.5"
+                  strokeDasharray="4 4"
+                  opacity="0.8"
+                />
 
-                {/* Floating Bacteriophage T4 */}
-                <g transform="translate(150, 110)">
+                {/* Bacteriophage Body */}
+                <g transform="translate(270, 75)">
                   {/* Icosahedral Head */}
-                  <polygon points="0,-65 40,-35 40,0 0,20 -40,0 -40,-35" fill="url(#heroPhageHead)" stroke="#e9d5ff" strokeWidth="2" />
-                  {/* Internal DNA coil */}
-                  <circle cx="0" cy="-22" r="14" fill="#f43f5e" opacity="0.8" />
-                  {/* Sheath */}
-                  <rect x="-7" y="20" width="14" height="42" fill="#2563eb" stroke="#60a5fa" strokeWidth="1.5" rx="3" />
-                  {/* Rings */}
-                  {[0, 1, 2, 3].map((r) => (
-                    <line key={r} x1="-7" y1={28 + r * 8} x2="7" y2={28 + r * 8} stroke="#bfdbfe" strokeWidth="1.5" />
+                  <polygon
+                    points="0,-55 38,-30 38,10 0,35 -38,10 -38,-30"
+                    fill="url(#phageHeadGradHero)"
+                    stroke="#DDD6FE"
+                    strokeWidth="2.5"
+                    filter="url(#heroGlow)"
+                  />
+                  {/* Facet division lines */}
+                  <line x1="0" y1="-55" x2="0" y2="35" stroke="#C4B5FD" strokeWidth="1.5" opacity="0.6" />
+                  <line x1="-38" y1="-30" x2="38" y2="10" stroke="#C4B5FD" strokeWidth="1.2" opacity="0.5" />
+                  <line x1="-38" y1="10" x2="38" y2="-30" stroke="#C4B5FD" strokeWidth="1.2" opacity="0.5" />
+
+                  {/* Coiled Genetic Material (dsDNA) */}
+                  <path
+                    d="M -16,-18 Q 0,-30 16,-18 Q 0,0 -12,12 Q 10,18 0,22"
+                    fill="none"
+                    stroke="#38BDF8"
+                    strokeWidth="3.5"
+                    strokeLinecap="round"
+                    filter="url(#heroGlow)"
+                  />
+
+                  {/* Collar */}
+                  <rect x="-8" y="35" width="16" height="5" fill="#3B82F6" rx="2" />
+
+                  {/* Sheath (Ekor) */}
+                  <rect x="-6" y="40" width="12" height="42" fill="#2563EB" stroke="#93C5FD" strokeWidth="1.5" rx="2" />
+                  {/* Sheath striations */}
+                  {[0, 1, 2, 3, 4].map((i) => (
+                    <line key={i} x1="-6" y1={46 + i * 7} x2="6" y2={46 + i * 7} stroke="#DBEAFE" strokeWidth="1.5" />
                   ))}
+
                   {/* Baseplate */}
-                  <rect x="-12" y="62" width="24" height="6" fill="#0284c7" rx="1" />
-                  {/* Tail Fibers */}
-                  <path d="M -12,65 Q -35,80 -50,115" fill="none" stroke="#38bdf8" strokeWidth="3" strokeLinecap="round" />
-                  <path d="M 12,65 Q 35,80 50,115" fill="none" stroke="#38bdf8" strokeWidth="3" strokeLinecap="round" />
-                  <path d="M -8,67 Q -20,85 -25,120" fill="none" stroke="#38bdf8" strokeWidth="2.5" strokeLinecap="round" />
-                  <path d="M 8,67 Q 20,85 25,120" fill="none" stroke="#38bdf8" strokeWidth="2.5" strokeLinecap="round" />
+                  <polygon points="-12,82 12,82 10,90 -10,90" fill="#1D4ED8" stroke="#60A5FA" strokeWidth="1" />
+
+                  {/* Tail Fibers (Serabut ekor) landing on membrane */}
+                  <path d="M -10,88 Q -30,110 -55,142" fill="none" stroke="#60A5FA" strokeWidth="3" strokeLinecap="round" />
+                  <path d="M 10,88 Q 30,110 55,142" fill="none" stroke="#60A5FA" strokeWidth="3" strokeLinecap="round" />
+                  <path d="M -8,88 Q -18,115 -30,146" fill="none" stroke="#60A5FA" strokeWidth="2.5" strokeLinecap="round" />
+                  <path d="M 8,88 Q 18,115 30,146" fill="none" stroke="#60A5FA" strokeWidth="2.5" strokeLinecap="round" />
                 </g>
 
-                {/* Floating ambient virions */}
-                <circle cx="50" cy="50" r="10" fill="#a855f7" opacity="0.4" />
-                <circle cx="250" cy="60" r="12" fill="#3b82f6" opacity="0.3" />
+                {/* ======================================================= */}
+                {/* CALLOUT LABELS & LEADER LINES */}
+                {/* ======================================================= */}
+
+                {/* 1. Label: Kepala */}
+                <g id="label-kepala">
+                  <path d="M 330 35 L 375 35" stroke="#1E293B" strokeWidth="1.5" strokeDasharray="3 2" />
+                  <circle cx="270" cy="40" r="3" fill="#6D28D9" />
+                  <rect x="375" y="22" width="70" height="26" rx="6" fill="#0F172A" />
+                  <text x="410" y="39" textAnchor="middle" fill="#FFFFFF" fontSize="11" fontWeight="bold">
+                    Kepala
+                  </text>
+                </g>
+
+                {/* 2. Label: Materi genetik */}
+                <g id="label-materi-genetik">
+                  <path d="M 270 70 L 390 70" stroke="#1E293B" strokeWidth="1.5" strokeDasharray="3 2" />
+                  <circle cx="270" cy="70" r="3" fill="#0284C7" />
+                  <rect x="390" y="57" width="105" height="26" rx="6" fill="#0F172A" />
+                  <text x="442" y="74" textAnchor="middle" fill="#FFFFFF" fontSize="11" fontWeight="bold">
+                    Materi genetik
+                  </text>
+                </g>
+
+                {/* 3. Label: Ekor */}
+                <g id="label-ekor">
+                  <path d="M 276 135 L 375 135" stroke="#1E293B" strokeWidth="1.5" strokeDasharray="3 2" />
+                  <circle cx="276" cy="135" r="3" fill="#2563EB" />
+                  <rect x="375" y="122" width="60" height="26" rx="6" fill="#0F172A" />
+                  <text x="405" y="139" textAnchor="middle" fill="#FFFFFF" fontSize="11" fontWeight="bold">
+                    Ekor
+                  </text>
+                </g>
+
+                {/* 4. Label: Serabut ekor */}
+                <g id="label-serabut-ekor">
+                  <path d="M 320 200 L 410 200" stroke="#1E293B" strokeWidth="1.5" strokeDasharray="3 2" />
+                  <circle cx="315" cy="195" r="3" fill="#3B82F6" />
+                  <rect x="410" y="187" width="95" height="26" rx="6" fill="#0F172A" />
+                  <text x="457" y="204" textAnchor="middle" fill="#FFFFFF" fontSize="11" fontWeight="bold">
+                    Serabut ekor
+                  </text>
+                </g>
+
+                {/* 5. Label: Sel bakteri */}
+                <g id="label-sel-bakteri">
+                  <path d="M 120 260 L 180 260" stroke="#1E293B" strokeWidth="1.5" strokeDasharray="3 2" />
+                  <circle cx="180" cy="260" r="3" fill="#A855F7" />
+                  <rect x="40" y="247" width="85" height="26" rx="6" fill="#0F172A" />
+                  <text x="82" y="264" textAnchor="middle" fill="#FFFFFF" fontSize="11" fontWeight="bold">
+                    Sel bakteri
+                  </text>
+                </g>
               </svg>
             </div>
           </div>
+
+          {/* Right Column (5 cols): Student Identity Form Card */}
+          <div className="lg:col-span-5 flex flex-col gap-4">
+            <div className="bg-white rounded-2xl p-5 sm:p-6 border border-slate-200/90 shadow-sm flex flex-col gap-4">
+              <div className="flex items-start gap-3 pb-3 border-b border-slate-100">
+                <div className="p-2.5 rounded-xl bg-blue-50 text-blue-600 shrink-0">
+                  <User className="w-5 h-5" />
+                </div>
+                <div>
+                  <h2 className="font-heading font-bold text-base text-slate-900 leading-snug">
+                    Identitas Peserta Didik
+                  </h2>
+                  <p className="text-xs text-slate-500 mt-0.5 leading-relaxed">
+                    Isi nama dan kelas kamu. Data ini akan digunakan untuk semua aktivitas dan hasil unduhan.
+                  </p>
+                </div>
+              </div>
+
+              {/* Nama Lengkap Input */}
+              <div className="flex flex-col gap-1.5">
+                <label
+                  htmlFor="nama-lengkap-input"
+                  className="text-xs font-bold text-slate-700 flex items-center gap-1.5"
+                >
+                  <User className="w-3.5 h-3.5 text-slate-400" />
+                  <span>Nama lengkap</span>
+                </label>
+                <input
+                  id="nama-lengkap-input"
+                  type="text"
+                  value={student.namaLengkap}
+                  onChange={handleNameChange}
+                  placeholder="Contoh: Andi Pratama"
+                  className="w-full px-3.5 py-2.5 text-sm bg-slate-50 border border-slate-200 rounded-xl text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition-all"
+                  aria-required="true"
+                />
+              </div>
+
+              {/* Kelas Dropdown Select */}
+              <div className="flex flex-col gap-1.5">
+                <label
+                  htmlFor="kelas-select"
+                  className="text-xs font-bold text-slate-700 flex items-center gap-1.5"
+                >
+                  <GraduationCap className="w-3.5 h-3.5 text-slate-400" />
+                  <span>Kelas</span>
+                </label>
+                <div className="relative">
+                  <select
+                    id="kelas-select"
+                    value={student.kelas}
+                    onChange={handleClassChange}
+                    className="w-full px-3.5 py-2.5 text-sm bg-slate-50 border border-slate-200 rounded-xl text-slate-900 appearance-none focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition-all cursor-pointer pr-10"
+                    aria-required="true"
+                  >
+                    <option value="" disabled>
+                      Pilih kelas
+                    </option>
+                    {[
+                      'X-1',
+                      'X-2',
+                      'X-3',
+                      'X-4',
+                      'X-5',
+                      'X-6',
+                      'X-7',
+                      'X-8',
+                      'X-9',
+                      'X-10',
+                      'X-11',
+                      'X-12',
+                    ].map((k) => (
+                      <option key={k} value={k}>
+                        {k}
+                      </option>
+                    ))}
+                  </select>
+                  <ChevronDown className="w-4 h-4 text-slate-400 absolute right-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+                </div>
+              </div>
+
+              {/* Identity Status Pill */}
+              <div
+                className={`p-3 rounded-xl text-xs flex items-center gap-2 border transition-colors ${
+                  isIdentityValid
+                    ? 'bg-emerald-50 text-emerald-800 border-emerald-200'
+                    : 'bg-amber-50 text-amber-800 border-amber-200'
+                }`}
+              >
+                {isIdentityValid ? (
+                  <>
+                    <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+                    <span>Identitas valid: Siap digunakan untuk aktivitas belajar.</span>
+                  </>
+                ) : (
+                  <>
+                    <AlertCircle className="w-4 h-4 text-amber-600 shrink-0" />
+                    <span>Wajib melengkapi nama dan kelas sebelum memulai.</span>
+                  </>
+                )}
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 
-      {/* 5E Learning Journey Roadmap */}
-      <div className="flex flex-col gap-4">
-        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-2">
-          <div>
-            <h2 className="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight">
-              Peta Alur Pembelajaran 5E
-            </h2>
-            <p className="text-sm text-slate-600">
-              Ikuti tahapan siklus belajar terarah untuk membangun pemahaman konsep ilmiah yang mendalam.
-            </p>
+      {/* ============================================================== */}
+      {/* ORIENTATION BLOCK 1: Tujuan Belajar (C1 to C6 Cards) */}
+      {/* ============================================================== */}
+      <section
+        className="bg-white rounded-3xl border border-slate-200/90 shadow-xs overflow-hidden transition-all"
+        aria-labelledby="tujuan-belajar-heading"
+      >
+        <button
+          type="button"
+          onClick={() => handleToggleBlock('objectives')}
+          className="w-full p-5 sm:p-6 text-left flex items-center justify-between gap-4 hover:bg-slate-50/60 transition-colors cursor-pointer select-none"
+        >
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center shrink-0">
+              <Sparkles className="w-5 h-5 text-blue-600" />
+            </div>
+            <div>
+              <div className="flex items-center gap-2">
+                <h2
+                  id="tujuan-belajar-heading"
+                  className="font-heading font-bold text-base sm:text-lg text-slate-900"
+                >
+                  Tujuan Belajar
+                </h2>
+                {orientationBlocks.objectives && (
+                  <span className="text-[10px] font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-full flex items-center gap-1">
+                    <CheckCircle2 className="w-3 h-3 text-emerald-600" />
+                    Terbuka
+                  </span>
+                )}
+              </div>
+              <p className="text-xs text-slate-500 mt-0.5">
+                Setelah menyelesaikan seluruh aktivitas, kamu akan dapat:
+              </p>
+            </div>
+          </div>
+          <div className="p-2 rounded-xl text-slate-400 hover:text-slate-700">
+            {openBlocks.objectives ? <ChevronUp className="w-5 h-5" /> : <ChevronDown className="w-5 h-5" />}
+          </div>
+        </button>
+
+        {openBlocks.objectives && (
+          <div className="px-5 pb-6 sm:px-6 pt-1 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-3.5 border-t border-slate-100">
+            {objectives.map((obj) => {
+              const Icon = obj.icon;
+              return (
+                <div
+                  key={obj.code}
+                  className={`bg-slate-50/60 rounded-2xl p-4 border ${obj.cardBorder} flex flex-col justify-between gap-3 shadow-2xs hover:shadow-xs transition-shadow`}
+                >
+                  <div className="flex flex-col gap-2.5">
+                    <div className="flex items-center justify-between">
+                      <span className={`text-[11px] font-mono font-bold px-2 py-0.5 rounded-md ${obj.badgeColor}`}>
+                        {obj.code}
+                      </span>
+                      <Icon className={`w-4 h-4 ${obj.iconColor}`} />
+                    </div>
+                    <p className="text-xs text-slate-700 leading-relaxed font-medium">
+                      {obj.text}
+                    </p>
+                  </div>
+                  <div className="pt-2 border-t border-slate-200/60">
+                    <span className="text-[10px] font-bold tracking-wider uppercase text-slate-500">
+                      {obj.badgeText}
+                    </span>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        )}
+      </section>
+
+      {/* ============================================================== */}
+      {/* ORIENTATION BLOCK 2: Prinsip Mindful, Meaningful, Joyful */}
+      {/* ============================================================== */}
+      <section
+        className="bg-white rounded-3xl border border-slate-200/90 shadow-xs overflow-hidden transition-all"
+        aria-labelledby="prinsip-heading"
+      >
+        <button
+          type="button"
+          onClick={() => handleToggleBlock('principles')}
+          className="w-full p-5 sm:p-6 text-left flex items-center justify-between gap-4 hover:bg-slate-50/60 transition-colors cursor-pointer select-none"
+        >
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0">
+              <Smile className="w-5 h-5 text-emerald-600" />
+            </div>
+            <div>
+              <div className="flex items-center gap-2">
+                <h2
+                  id="prinsip-heading"
+                  className="font-heading font-bold text-base sm:text-lg text-slate-900"
+                >
+                  Prinsip Mindful, Meaningful, Joyful
+                </h2>
+                {orientationBlocks.principles && (
+                  <span className="text-[10px] font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-full flex items-center gap-1">
+                    <CheckCircle2 className="w-3 h-3 text-emerald-600" />
+                    Terbuka
+                  </span>
+                )}
+              </div>
+              <p className="text-xs text-slate-500 mt-0.5">
+                Tiga prinsip yang akan menemani kamu selama belajar di VIRUSNESIA.
+              </p>
+            </div>
+          </div>
+          <div className="p-2 rounded-xl text-slate-400 hover:text-slate-700">
+            {openBlocks.principles ? <ChevronUp className="w-5 h-5" /> : <ChevronDown className="w-5 h-5" />}
+          </div>
+        </button>
+
+        {openBlocks.principles && (
+          <div className="px-5 pb-6 sm:px-6 pt-1 grid grid-cols-1 md:grid-cols-3 gap-4 border-t border-slate-100">
+            {principles.map((pr) => {
+              const Icon = pr.icon;
+              return (
+                <div
+                  key={pr.title}
+                  className={`bg-slate-50/60 rounded-2xl p-4 sm:p-5 border ${pr.borderColor} flex flex-col gap-3 shadow-2xs hover:shadow-xs transition-shadow`}
+                >
+                  <div className="flex items-center gap-2.5">
+                    <div className={`w-8 h-8 rounded-xl ${pr.iconBg} flex items-center justify-center shrink-0`}>
+                      <Icon className="w-4 h-4" />
+                    </div>
+                    <h3 className="font-heading font-bold text-sm sm:text-base text-slate-900">
+                      {pr.title}
+                    </h3>
+                  </div>
+                  <div>
+                    <p className="text-xs sm:text-sm font-semibold text-slate-800 leading-snug">
+                      "{pr.subtitle}"
+                    </p>
+                    <p className="text-xs text-slate-500 mt-1 leading-relaxed">
+                      {pr.detail}
+                    </p>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        )}
+      </section>
+
+      {/* ============================================================== */}
+      {/* ORIENTATION BLOCK 3: Petunjuk Penggunaan (7 Steps) */}
+      {/* ============================================================== */}
+      <section
+        className="bg-white rounded-3xl border border-slate-200/90 shadow-xs overflow-hidden transition-all"
+        aria-labelledby="petunjuk-penggunaan-heading"
+      >
+        <button
+          type="button"
+          onClick={() => handleToggleBlock('guide')}
+          className="w-full p-5 sm:p-6 text-left flex items-center justify-between gap-4 hover:bg-slate-50/60 transition-colors cursor-pointer select-none"
+        >
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center shrink-0">
+              <BookOpen className="w-5 h-5 text-amber-600" />
+            </div>
+            <div>
+              <div className="flex items-center gap-2">
+                <h2
+                  id="petunjuk-penggunaan-heading"
+                  className="font-heading font-bold text-base sm:text-lg text-slate-900"
+                >
+                  Petunjuk Penggunaan
+                </h2>
+                {orientationBlocks.guide && (
+                  <span className="text-[10px] font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-full flex items-center gap-1">
+                    <CheckCircle2 className="w-3 h-3 text-emerald-600" />
+                    Terbuka
+                  </span>
+                )}
+              </div>
+              <p className="text-xs text-slate-500 mt-0.5">
+                Ikuti tahap dari atas ke bawah. Gunakan jeda, ulang, dan bantuan bila perlu. Progresmu tersimpan.
+              </p>
+            </div>
+          </div>
+          <div className="p-2 rounded-xl text-slate-400 hover:text-slate-700">
+            {openBlocks.guide ? <ChevronUp className="w-5 h-5" /> : <ChevronDown className="w-5 h-5" />}
+          </div>
+        </button>
+
+        {openBlocks.guide && (
+          <div className="px-5 pb-6 sm:px-6 pt-1 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-7 gap-3 border-t border-slate-100">
+            {instructions.map((ins) => (
+              <div
+                key={ins.number}
+                className="bg-slate-50/70 rounded-2xl p-3.5 border border-slate-200/80 flex flex-col gap-2"
+              >
+                <div className="flex items-center gap-2">
+                  <span className="w-5 h-5 rounded-full bg-blue-600 text-white font-mono text-[11px] font-bold flex items-center justify-center shrink-0">
+                    {ins.number}
+                  </span>
+                  <span className="text-[10px] uppercase font-bold text-slate-400">
+                    Langkah {ins.number}
+                  </span>
+                </div>
+                <h4 className="font-heading font-bold text-xs text-slate-900 leading-snug">
+                  {ins.title}
+                </h4>
+                <p className="text-[11px] text-slate-500 leading-relaxed">
+                  {ins.detail}
+                </p>
+              </div>
+            ))}
+          </div>
+        )}
+      </section>
+
+      {/* ============================================================== */}
+      {/* BOTTOM ACTION BAR: Note & Navigation Buttons */}
+      {/* ============================================================== */}
+      <div className="bg-white rounded-3xl p-5 sm:p-6 border border-slate-200 shadow-sm flex flex-col md:flex-row items-center justify-between gap-5">
+        {/* Note simulation data */}
+        <div className="flex items-center gap-3">
+          <div className="w-8 h-8 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center shrink-0">
+            <Info className="w-4 h-4 text-blue-600" />
+          </div>
+          <div className="text-xs text-slate-600">
+            <strong className="text-slate-800">Catatan:</strong> Semua data pada website adalah data simulasi untuk pembelajaran.
           </div>
         </div>
 
-        {/* 5 Cards Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
-          {cycleStages.map((stage) => {
-            const Icon = stage.icon;
-            return (
-              <div
-                key={stage.phase}
-                onClick={() => onNavigate(stage.phase)}
-                className={`group bg-white rounded-2xl p-5 border transition-all duration-200 cursor-pointer flex flex-col justify-between hover:shadow-md ${
-                  stage.done
-                    ? 'border-emerald-300 ring-1 ring-emerald-200/50'
-                    : 'border-slate-200 hover:border-blue-300'
-                }`}
-                role="button"
-                tabIndex={0}
-                aria-label={`Buka fase ${stage.title}: ${stage.subtitle}`}
-              >
-                <div>
-                  <div className="flex items-center justify-between mb-3">
-                    <span className="font-mono text-xs font-bold text-slate-400">
-                      {stage.number}
-                    </span>
-                    {stage.done ? (
-                      <span className="text-[11px] font-semibold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full flex items-center gap-1">
-                        <CheckCircle2 className="w-3 h-3 text-emerald-600" />
-                        Selesai
-                      </span>
-                    ) : (
-                      <div className={`p-2 rounded-xl border ${stage.accentColor}`}>
-                        <Icon className="w-4 h-4" />
-                      </div>
-                    )}
-                  </div>
+        {/* Buttons right: Secondary "Baca materi dulu" & Primary "Saya siap, mulai!" */}
+        <div className="flex flex-wrap items-center gap-3 w-full md:w-auto justify-end">
+          {/* Secondary Link: Baca materi dulu */}
+          <button
+            type="button"
+            onClick={onOpenMateriAwal}
+            className="px-4 py-2.5 rounded-xl text-xs sm:text-sm font-semibold text-blue-600 hover:text-blue-700 hover:bg-blue-50/80 transition-colors cursor-pointer border border-transparent hover:border-blue-200"
+          >
+            Baca materi dulu
+          </button>
 
-                  <h3 className="font-bold text-base text-slate-900 group-hover:text-blue-600 transition-colors">
-                    {stage.title}
-                  </h3>
-                  <span className="text-xs font-medium text-slate-500 block mb-2">
-                    {stage.subtitle}
-                  </span>
+          {/* Primary Button: Saya siap, mulai! */}
+          <div className="relative group">
+            <button
+              type="button"
+              onClick={onStartLearning}
+              disabled={!canStart}
+              className={`h-12 px-6 rounded-xl font-heading font-bold text-xs sm:text-sm transition-all shadow-md flex items-center gap-2 ${
+                canStart
+                  ? 'bg-[#1A73E8] hover:bg-[#1557b0] active:bg-[#0d47a1] text-white cursor-pointer hover:shadow-blue-500/25'
+                  : 'bg-slate-200 text-slate-400 cursor-not-allowed shadow-none border border-slate-300/60'
+              }`}
+              title={
+                canStart
+                  ? 'Mulai belajar fase Let’s Wonder'
+                  : 'Lengkapi identitas dan buka 3 blok informasi terlebih dahulu'
+              }
+            >
+              <span>Saya siap, mulai!</span>
+              <ArrowRight className="w-4 h-4" />
+            </button>
 
-                  <p className="text-xs text-slate-600 leading-relaxed">
-                    {stage.description}
-                  </p>
-                </div>
-
-                <div className="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-xs font-semibold text-blue-600 group-hover:translate-x-0.5 transition-transform">
-                  <span>Masuki Fase</span>
-                  <ArrowRight className="w-3.5 h-3.5" />
-                </div>
+            {/* Tooltip hint when disabled */}
+            {!canStart && (
+              <div className="absolute right-0 bottom-full mb-2 hidden group-hover:flex flex-col gap-1 w-64 p-3 bg-slate-900 text-white text-[11px] rounded-xl shadow-xl z-20 pointer-events-none">
+                <span className="font-bold text-amber-300 flex items-center gap-1">
+                  <AlertCircle className="w-3.5 h-3.5" />
+                  Syarat belum terpenuhi:
+                </span>
+                {!isIdentityValid && <span>• Lengkapi nama lengkap & kelas</span>}
+                {!orientationBlocks.objectives && <span>• Buka blok "Tujuan Belajar"</span>}
+                {!orientationBlocks.principles && <span>• Buka blok "Prinsip Mindful..."</span>}
+                {!orientationBlocks.guide && <span>• Buka blok "Petunjuk Penggunaan"</span>}
               </div>
-            );
-          })}
+            )}
+          </div>
         </div>
-      </div>
-
-      {/* Curriculum Competency & Objectives Banner */}
-      <div className="bg-slate-50 rounded-2xl border border-slate-200 p-6 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
-        <div className="space-y-1">
-          <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">
-            Tujuan Pembelajaran Biologi Kelas X
-          </span>
-          <h3 className="text-base font-bold text-slate-900">
-            Capaian Pembelajaran (CP) Replikasi Virus
-          </h3>
-          <p className="text-xs text-slate-600 max-w-2xl leading-relaxed">
-            Peserta didik mampu menganalisis struktur biologis bakteriofag, membedakan mekanisme replikasi siklus litik dan lisogenik dengan menggunakan bukti ilmiah, serta memecahkan masalah kontekstual penularan dan terapi virus.
-          </p>
-        </div>
-
-        <button
-          type="button"
-          onClick={() => onNavigate('reflect')}
-          className="px-4 py-2 bg-white hover:bg-slate-100 border border-slate-200 text-slate-800 text-xs font-bold rounded-xl shadow-xs transition-colors whitespace-nowrap shrink-0"
-        >
-          Lihat Refleksi & Sertifikat
-        </button>
       </div>
     </div>
   );

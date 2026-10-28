@@ -7,6 +7,16 @@ export const INITIAL_PROGRESS: UserProgress = {
   lastUpdated: new Date().toISOString(),
   currentPhase: 'home',
   activeExploreTab: 'structure',
+  student: {
+    namaLengkap: '',
+    kelas: '',
+    avatarInitials: 'AP',
+  },
+  orientationBlocks: {
+    objectives: false,
+    principles: false,
+    guide: false,
+  },
   engage: {
     answers: {},
     initialHypothesis: '',
@@ -52,6 +62,8 @@ export function loadUserProgress(): UserProgress {
     return {
       ...INITIAL_PROGRESS,
       ...parsed,
+      student: { ...INITIAL_PROGRESS.student, ...(parsed.student || {}) },
+      orientationBlocks: { ...INITIAL_PROGRESS.orientationBlocks, ...(parsed.orientationBlocks || {}) },
       engage: { ...INITIAL_PROGRESS.engage, ...(parsed.engage || {}) },
       explore: { ...INITIAL_PROGRESS.explore, ...(parsed.explore || {}) },
       explain: { ...INITIAL_PROGRESS.explain, ...(parsed.explain || {}) },
@@ -114,4 +126,29 @@ export function calculateOverallProgress(progress: UserProgress): {
     totalPhases,
     phaseStatus,
   };
+}
+
+export function getStudentInitials(fullName: string): string {
+  const trimmed = fullName.trim();
+  if (!trimmed) return 'AP';
+  const parts = trimmed.split(/\s+/).filter(Boolean);
+  if (parts.length === 1) {
+    return parts[0].slice(0, 2).toUpperCase();
+  }
+  return (parts[0][0] + parts[1][0]).toUpperCase();
+}
+
+export function isStudentIdentityValid(student: import('../types').StudentIdentity): boolean {
+  return Boolean(student && student.namaLengkap.trim().length >= 2 && student.kelas.trim().length > 0);
+}
+
+export function areAllOrientationBlocksOpened(blocks: import('../types').OrientationBlocksOpened): boolean {
+  return Boolean(blocks && blocks.objectives && blocks.principles && blocks.guide);
+}
+
+export function canStartLearning(
+  student: import('../types').StudentIdentity,
+  blocks: import('../types').OrientationBlocksOpened
+): boolean {
+  return isStudentIdentityValid(student) && areAllOrientationBlocksOpened(blocks);
 }

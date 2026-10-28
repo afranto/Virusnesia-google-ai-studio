@@ -5,6 +5,7 @@ import {
   CaseStudy,
   GlossaryItem,
   DiagnosticQuestion,
+  InteractiveSvgObject,
 } from '../types';
 
 export const DIAGNOSTIC_QUESTIONS: DiagnosticQuestion[] = [
@@ -533,13 +534,7 @@ export const REFLECTION_PROMPTS = [
   },
 ];
 
-export const INTERACTIVE_SIMULATION_OBJECTS: Record<string, {
-  id: string;
-  name: string;
-  category: 'virus' | 'host' | 'dna' | 'enzyme';
-  summary: string;
-  scientificRole: string;
-}> = {
+export const INTERACTIVE_SIMULATION_OBJECTS: Record<string, InteractiveSvgObject> = {
   kapsid: {
     id: 'kapsid',
     name: 'Kepala (Kapsid Protein)',
@@ -595,6 +590,302 @@ export const INTERACTIVE_SIMULATION_OBJECTS: Record<string, {
     category: 'enzyme',
     summary: 'Faktor stres lingkungan fisik yang memicu respons perbaikan DNA pada bakteri.',
     scientificRole: 'Radiasi UV merusak DNA seluler, mengaktifkan protein RecA bakteri yang memecah protein repressor profag. Akibatnya enzim eksisiase melepaskan profag dari kromosom inang dan beralih ke siklus litik.',
+    molecularFormula: 'Foton UV (λ ~ 254 nm)',
+    scaleNm: 0.00025,
+  },
+  reseptor_ompc: {
+    id: 'reseptor_ompc',
+    name: 'Reseptor Permukaan (OmpC & LPS)',
+    category: 'host',
+    summary: 'Kompleks protein porin dan lipopolisakarida pada membran luar bakteri gram-negatif.',
+    scientificRole: 'Berfungsi sebagai pintu masuk nutrisi bagi bakteri, namun disalahgunakan oleh bakteriofag sebagai titik jangkar spesifik untuk mengenali dan menempelkan serabut ekornya.',
+    molecularFormula: 'Lipopolisakarida + Protein Membran Luar',
+    scaleNm: 8,
+  },
+  ribosom_inang: {
+    id: 'ribosom_inang',
+    name: 'Ribosom Inang (Kompleks Translasi 70S)',
+    category: 'host',
+    summary: 'Mesin biosintesis protein sel bakteri yang dibajak oleh mRNA virus.',
+    scientificRole: 'Pada siklus litik, ribosom inang dipaksa menerjemahkan transkrip mRNA virus menjadi protein kapsid, lempeng dasar, dan enzim endolisin tanpa henti.',
+    molecularFormula: 'Kompleks rRNA + Protein Ribosomal',
+    scaleNm: 25,
+  },
+  enzim_integrase: {
+    id: 'enzim_integrase',
+    name: 'Enzim Integrase Virus',
+    category: 'enzyme',
+    summary: 'Enzim rekombinase spesifik tapak yang mengkatalisis penyisipan DNA virus ke kromosom bakteri.',
+    scientificRole: 'Kunci pembentukan profag pada siklus lisogenik. Enzim ini mengenali situs komplementer attP (pada DNA virus) dan attB (pada kromosom bakteri) untuk menyambung kedua untaian secara kovalen.',
+    molecularFormula: 'Protein Polipeptida Rekombinase',
+    scaleNm: 6,
+  },
+  enzim_eksisiase: {
+    id: 'enzim_eksisiase',
+    name: 'Enzim Eksisiase & Protein RecA',
+    category: 'enzyme',
+    summary: 'Kompleks enzim pemotong yang melepaskan profag saat bakteri mengalami stres seluler.',
+    scientificRole: 'Ketika radiasi ultraviolet merusak DNA bakteri, protein RecA diaktifkan untuk menginaktivasi repressor CI. Enzim eksisiase kemudian memotong profag keluar dari kromosom inang untuk beralih ke siklus litik.',
+    molecularFormula: 'Kompleks Nuklease Eksisi',
+    scaleNm: 7,
+  },
+};
+
+export const LYTIC_PREDICTIONS: Record<number, import('../types').LabPrediction> = {
+  1: {
+    id: 'pred-lytic-1',
+    stepNumber: 1,
+    question: 'Apa yang akan terjadi jika struktur kimia serabut ekor bakteriofag tidak cocok dengan reseptor membran sel bakteri?',
+    hypothesisPrompt: 'Prediksi interaksi molekuler antara serabut ekor virus dengan reseptor inang:',
+    options: [
+      {
+        id: 'opt-1a',
+        text: 'Virus tidak dapat menempel dan infeksi gagal total (prinsip spesifisitas inang).',
+        isCorrect: true,
+        feedback: 'Tepat sekali! Adsorpsi membutuhkan pengenalan komplementer spesifik antara serabut ekor dan reseptor dinding sel (seperti gembok dan kunci).',
+      },
+      {
+        id: 'opt-1b',
+        text: 'Virus akan menembus bagian mana pun dari dinding sel tanpa memerlukan reseptor.',
+        isCorrect: false,
+        feedback: 'Kurang tepat. Virus tidak memiliki alat gerak aktif mandiri; penempelan hanya terjadi jika ada afinitas kimiawi dengan reseptor spesifik.',
+      },
+      {
+        id: 'opt-1c',
+        text: 'Virus akan langsung menyuntikkan DNA dari jarak jauh ke dalam sitoplasma.',
+        isCorrect: false,
+        feedback: 'Tidak tepat. Penetrasi membutuhkan penempelan fisik yang sangat kokoh agar jarum penusuk dapat melubangi peptidoglikan.',
+      },
+    ],
+    scientificExplanation: 'Adsorpsi adalah tahap pengenalan molekuler tingkat tinggi. Protein gp37 pada serabut ekor panjang harus berikatan spesifik dengan lipopolisakarida (LPS) atau membran protein OmpC. Tanpa kecocokan ini, bakteriofag tidak dapat menurunkan lempeng dasar untuk memulai penetrasi.',
+    observedPhenomenon: 'Bakteriofag berlabuh dengan kokoh tepat di atas reseptor membran luar bakteri.',
+  },
+  2: {
+    id: 'pred-lytic-2',
+    stepNumber: 2,
+    question: 'Bagian manakah dari bakteriofag yang sebenarnya disuntikkan ke dalam sitoplasma sel inang?',
+    hypothesisPrompt: 'Tentukan komponen virus yang berhasil menembus dinding sel:',
+    options: [
+      {
+        id: 'opt-2a',
+        text: 'Hanya materi genetik (dsDNA), sedangkan cangkang kapsid protein tertinggal di luar.',
+        isCorrect: true,
+        feedback: 'Tepat sekali! Pada bakteriofag, hanya asam nukleat yang masuk ke dalam sitoplasma. Kapsid kosong tertinggal di luar sebagai "ghost".',
+      },
+      {
+        id: 'opt-2b',
+        text: 'Seluruh partikel virus utuh ditelan oleh sel bakteri ke dalam sitoplasma.',
+        isCorrect: false,
+        feedback: 'Kurang tepat. Dinding sel bakteri yang kaku tidak dapat melakukan endositosis. Hanya materi genetik yang disuntikkan melewati dinding.',
+      },
+      {
+        id: 'opt-2c',
+        text: 'Hanya selubung kapsid protein, sedangkan materi genetik dihancurkan di luar.',
+        isCorrect: false,
+        feedback: 'Keliru. DNA adalah informasi genetik paling berharga yang harus dimasukkan ke dalam sel inang untuk replikasi.',
+      },
+    ],
+    scientificExplanation: 'Jarum sentral lempeng dasar mengandung lisozim yang melubangi peptidoglikan. Selubung ekor berkontraksi seperti jarum suntik mikro bertekanan osmotik tinggi, menyuntikkan DNA untai ganda langsung ke sitoplasma inang.',
+    observedPhenomenon: 'Untaian DNA virus mengalir deras melewati poros tabung ekor ke dalam sitoplasma bakteri, menyisakan kapsid transparan di luar.',
+  },
+  3: {
+    id: 'pred-lytic-3',
+    stepNumber: 3,
+    question: 'Bagaimana nasib kromosom sel inang (DNA bakteri) saat DNA virus mulai aktif membajak sel?',
+    hypothesisPrompt: 'Prediksi kondisi materi genetik sel inang selama biosintesis virus:',
+    options: [
+      {
+        id: 'opt-3a',
+        text: 'DNA bakteri dipotong-potong dan dihancurkan oleh enzim nuklease virus.',
+        isCorrect: true,
+        feedback: 'Tepat sekali! Enzim endonuklease virus menghidrolisis kromosom inang agar ribosom dan nukleotida inang dapat dipakai sepenuhnya untuk virus.',
+      },
+      {
+        id: 'opt-3b',
+        text: 'DNA bakteri bergabung secara damai dengan DNA virus untuk membentuk bakteri super.',
+        isCorrect: false,
+        feedback: 'Kurang tepat. Penggabungan DNA hanya terjadi pada siklus lisogenik, bukan pada siklus litik yang bersifat destruktif.',
+      },
+      {
+        id: 'opt-3c',
+        text: 'DNA bakteri tetap mengendalikan sel dan berhasil menghancurkan DNA virus.',
+        isCorrect: false,
+        feedback: 'Kurang tepat. Pada siklus litik virulen, DNA inang langsung dinonaktifkan oleh program genetik virus.',
+      },
+    ],
+    scientificExplanation: 'DNA virus mengekspresikan enzim awal (early enzymes) seperti nuklease yang mendegradasi kromosom sirkular bakteri. Aparatus transkripsi dan translasi sel inang dipaksa menyalin genom virus dan memproduksi ratusan protein kapsomer virus.',
+    observedPhenomenon: 'Kromosom inang terfragmentasi, sementara salinan DNA virus dan komponen protein struktural disintesis secara masif.',
+  },
+  4: {
+    id: 'pred-lytic-4',
+    stepNumber: 4,
+    question: 'Bagaimana ratusan partikel virus baru terbentuk di dalam sitoplasma bakteri?',
+    hypothesisPrompt: 'Prediksi mekanisme morfogenesis partikel virus:',
+    options: [
+      {
+        id: 'opt-4a',
+        text: 'Kepala kapsid, DNA, tabung ekor, dan serabut dirakit secara bertahap dan terkoordinasi.',
+        isCorrect: true,
+        feedback: 'Benar! Perakitan virus adalah jalur morfogenesis teratur di mana DNA dikemas ke kepala kapsid, lalu disambung dengan ekor dan serabut.',
+      },
+      {
+        id: 'opt-4b',
+        text: 'Partikel virus baru membelah secara biner dari virus awal seperti bakteri.',
+        isCorrect: false,
+        feedback: 'Keliru. Virus bukanlah sel (aseluler) sehingga tidak mampu membelah diri secara biner atau mitosis.',
+      },
+      {
+        id: 'opt-4c',
+        text: 'Virus langsung terbentuk utuh spontan dari cairan sitoplasma tanpa penggabungan bagian.',
+        isCorrect: false,
+        feedback: 'Kurang tepat. Sintesis protein terjadi per komponen struktural yang kemudian dirakit bertahap menjadi virion matang.',
+      },
+    ],
+    scientificExplanation: 'Perakitan adalah perakitan mandiri (self-assembly) yang sangat teratur: motor pengemas terminase memasukkan dsDNA ke prokapsid, disusul leher, tabung ekor, dan serabut ekor hingga terbentuk 100-200 partikel virion infeksius.',
+    observedPhenomenon: 'Komponen-komponen bebas bergerak memusat dan bersatu membentuk bakteriofag muda yang utuh.',
+  },
+  5: {
+    id: 'pred-lytic-5',
+    stepNumber: 5,
+    question: 'Apa dampak pelepasan enzim endolisin dan holin pada akhir siklus litik?',
+    hypothesisPrompt: 'Prediksi peristiwa fisik pada dinding sel dan nasib sel bakteri:',
+    options: [
+      {
+        id: 'opt-5a',
+        text: 'Dinding sel bakteri lisis (pecah) akibat pencernaan peptidoglikan dan ratusan virion bebas menginfeksi.',
+        isCorrect: true,
+        feedback: 'Luar biasa, tepat sekali! Protein holin melubangi membran dan endolisin menghancurkan dinding sel, memicu lisis osmotik total.',
+      },
+      {
+        id: 'opt-5b',
+        text: 'Sel bakteri menutup dindingnya kembali dan melanjutkan kehidupan normal.',
+        isCorrect: false,
+        feedback: 'Kurang tepat. Pada siklus litik, kerusakan dinding sel bersifat fatal dan sel bakteri mati secara permanen.',
+      },
+      {
+        id: 'opt-5c',
+        text: 'Sel bakteri membelah menjadi ribuan sel baru untuk menampung virus.',
+        isCorrect: false,
+        feedback: 'Keliru. Sel inang tidak membelah, melainkan hancur berantakan akibat tekanan turgor sitoplasma.',
+      },
+    ],
+    scientificExplanation: 'Enzim holin membuat pori pada membran dalam, mengizinkan endolisin mencerna ikatan glikosidik peptidoglikan. Akibat tekanan turgor osmotik internal yang tinggi, dinding sel meletup (lisis) membebaskan ratusan bakteriofag ke lingkungan.',
+    observedPhenomenon: 'Dinding sel bakteri koyak terbuka dan partikel-partikel bakteriofag berhamburan keluar ke lingkungan ekstraseluler.',
+  },
+};
+
+export const LYSOGENIC_PREDICTIONS: Record<number, import('../types').LabPrediction> = {
+  1: {
+    id: 'pred-lyso-1',
+    stepNumber: 1,
+    question: 'Mengapa pada tahap awal siklus lisogenik, sel bakteri inang tidak langsung mengalami kematian?',
+    hypothesisPrompt: 'Prediksi kondisi sel inang setelah penetrasi bakteriofag temperate:',
+    options: [
+      {
+        id: 'opt-lyso-1a',
+        text: 'Karena virus tidak memproduksi enzim penghancur DNA inang dan protein repressor menjaga sel tetap aman.',
+        isCorrect: true,
+        feedback: 'Tepat sekali! Bakteriofag temperate (seperti Fag Lamda) tidak mendegradasi kromosom inang dan segera mematikan gen virulensinya.',
+      },
+      {
+        id: 'opt-lyso-1b',
+        text: 'Karena virus kehilangan asam nukleatnya sebelum berhasil masuk ke sitoplasma.',
+        isCorrect: false,
+        feedback: 'Kurang tepat. DNA virus tetap berhasil masuk ke dalam sitoplasma secara normal dan membentuk sirkular.',
+      },
+      {
+        id: 'opt-lyso-1c',
+        text: 'Karena dinding sel bakteri kebal dan menetralkan seluruh partikel virus.',
+        isCorrect: false,
+        feedback: 'Kurang tepat. Infeksi tetap berhasil, namun virus memilih jalur laten daripada menghancurkan sel inang.',
+      },
+    ],
+    scientificExplanation: 'Fag temperate mengkodekan protein repressor (seperti protein CI pada Fag Lamda) yang mengikat operator gen litik untuk mencegah sintesis enzim degradatif dan protein kapsid. Sel inang tetap hidup normal.',
+    observedPhenomenon: 'DNA virus masuk ke sitoplasma dan membentuk lingkaran tanpa merusak kromosom bakteri.',
+  },
+  2: {
+    id: 'pred-lyso-2',
+    stepNumber: 2,
+    question: 'Apakah yang dimaksud dengan struktur "PROFAG" pada siklus lisogenik?',
+    hypothesisPrompt: 'Definisikan struktur genetik rekombinan yang terbentuk:',
+    options: [
+      {
+        id: 'opt-lyso-2a',
+        text: 'Segmen DNA virus yang telah terintegrasi secara kovalen ke dalam kromosom bakteri dalam kondisi laten.',
+        isCorrect: true,
+        feedback: 'Tepat sekali! Enzim integrase menyisipkan DNA fag ke lokus spesifik kromosom inang membentuk profag.',
+      },
+      {
+        id: 'opt-lyso-2b',
+        text: 'Cangkang protein kapsid kosong yang menempel permanen di luar dinding sel bakteri.',
+        isCorrect: false,
+        feedback: 'Kurang tepat. Kapsid kosong di luar disebut "ghost phage", bukan profag.',
+      },
+      {
+        id: 'opt-lyso-2c',
+        text: 'Enzim yang dibuat oleh bakteri untuk memakan partikel virus yang masuk.',
+        isCorrect: false,
+        feedback: 'Keliru. Profag adalah materi genetik virus itu sendiri yang menyatu dengan kromosom inang.',
+      },
+    ],
+    scientificExplanation: 'Enzim integrase virus mengenali situs penempelan spesifik attP pada genom virus dan attB pada kromosom bakteri E. coli. Terjadi rekombinasi tapak-spesifik sehingga DNA virus menjadi bagian integral kromosom bakteri (profag).',
+    observedPhenomenon: 'DNA virus menyisip mulus ke dalam lingkaran kromosom bakteri dan memendarkan cahaya magenta penanda profag.',
+  },
+  3: {
+    id: 'pred-lyso-3',
+    stepNumber: 3,
+    question: 'Apa yang terjadi pada materi genetik virus ketika bakteri inang melakukan pembelahan biner?',
+    hypothesisPrompt: 'Prediksi pewarisan materi genetik profag ke sel-sel generasi berikutnya:',
+    options: [
+      {
+        id: 'opt-lyso-3a',
+        text: 'Profag ikut digandakan bersama kromosom bakteri, sehingga kedua sel anak mewarisi salinan profag.',
+        isCorrect: true,
+        feedback: 'Luar biasa! Karena profag menyatu di kromosom inang, enzim replikasi bakteri otomatis menyalin profag untuk kedua sel anak.',
+      },
+      {
+        id: 'opt-lyso-3b',
+        text: 'Profag akan lenyap karena tersaring keluar saat sitoplasma membelah dua.',
+        isCorrect: false,
+        feedback: 'Kurang tepat. Profag berikatan kovalen kuat di dalam DNA inang sehingga tidak dapat lenyap saat pembelahan sel.',
+      },
+      {
+        id: 'opt-lyso-3c',
+        text: 'Pembelahan sel memicu kematian instan pada kedua sel anak bakteri.',
+        isCorrect: false,
+        feedback: 'Keliru. Pembelahan berlangsung sehat dan normal, menghasilkan koloni bakteri lisogenik yang stabil.',
+      },
+    ],
+    scientificExplanation: 'Siklus lisogenik memungkinkan virus memperbanyak materi genetiknya secara gratis tanpa memproduksi kapsid atau merusak inang. Setiap kali bakteri bereproduksi, salinan profag digandakan ke seluruh generasi sel anak.',
+    observedPhenomenon: 'Satu sel bakteri membelah menjadi dua sel anak yang sehat; masing-masing sel membawa kromosom lengkap dengan profag.',
+  },
+  4: {
+    id: 'pred-lyso-4',
+    stepNumber: 4,
+    question: 'Apa dampak radiasi ultraviolet (UV) atau zat mutagenik terhadap bakteri lisogenik pembawa profag?',
+    hypothesisPrompt: 'Prediksi efek stres lingkungan pada stabilitas profag:',
+    options: [
+      {
+        id: 'opt-lyso-4a',
+        text: 'Memicu pelepasan profag (eksisi) dari kromosom bakteri dan mengarahkan siklus ke tahap litik.',
+        isCorrect: true,
+        feedback: 'Tepat sekali! Stres radiasi UV mengaktifkan protein RecA yang mendegradasi repressor, mengaktifkan eksisiase untuk memulai siklus litik.',
+      },
+      {
+        id: 'opt-lyso-4b',
+        text: 'Membuat profag menyatu lebih dalam dan mematikan virus untuk selamanya.',
+        isCorrect: false,
+        feedback: 'Kurang tepat. Radiasi justru membangunkan virus laten agar keluar sebelum inangnya mati oleh faktor lingkungan.',
+      },
+      {
+        id: 'opt-lyso-4c',
+        text: 'Menghilangkan seluruh bakteri tanpa menyisakan materi genetik virus apa pun.',
+        isCorrect: false,
+        feedback: 'Kurang tepat. Bakteri merespons stres, tetapi virus meresponsnya dengan melarikan diri ke siklus litik.',
+      },
+    ],
+    scientificExplanation: 'Fenomena ini dinamakan INDUKSI. Saat DNA inang rusak akibat UV, protein seluler RecA bertindak sebagai protease yang memecah protein repressor CI. Gen litik kembali aktif, enzim eksisiase melepaskan profag, dan virus memulai sintesis komponen untuk melisiskan sel.',
+    observedPhenomenon: 'Paparan foton UV melepaskan fragmen DNA profag dari kromosom inang, bertransisi menjadi DNA sirkular aktif untuk siklus litik.',
   },
 };
 

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { LearningPhase, UserProgress } from './types';
+import { LearningPhase, UserProgress, StudentIdentity, OrientationBlocksOpened } from './types';
 import {
   loadUserProgress,
   saveUserProgress,
@@ -8,6 +8,7 @@ import {
 } from './utils/storage';
 import { Navbar } from './components/Navbar';
 import { HomeSection } from './components/HomeSection';
+import { MateriAwalSection } from './components/MateriAwalSection';
 import { EngageSection } from './components/EngageSection';
 import { ExploreSection } from './components/ExploreSection';
 import { ExplainSection } from './components/ExplainSection';
@@ -26,10 +27,14 @@ export default function App() {
 
   const { percentage } = calculateOverallProgress(progress);
 
-  const handleNavigate = (phase: LearningPhase) => {
+  const handleNavigate = (
+    phase: LearningPhase,
+    exploreTab?: 'structure' | 'lytic' | 'lysogenic' | 'compare' | 'notes'
+  ) => {
     setProgress((prev) => ({
       ...prev,
       currentPhase: phase,
+      ...(exploreTab ? { activeExploreTab: exploreTab } : {}),
     }));
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
@@ -39,6 +44,32 @@ export default function App() {
       ...prev,
       activeExploreTab: tab,
     }));
+  };
+
+  // Stage 1: Student Identity & Orientation handlers
+  const handleUpdateIdentity = (student: StudentIdentity) => {
+    setProgress((prev) => ({
+      ...prev,
+      student,
+    }));
+  };
+
+  const handleOpenOrientationBlock = (blockKey: keyof OrientationBlocksOpened) => {
+    setProgress((prev) => ({
+      ...prev,
+      orientationBlocks: {
+        ...prev.orientationBlocks,
+        [blockKey]: true,
+      },
+    }));
+  };
+
+  const handleStartLearning = () => {
+    handleNavigate('engage');
+  };
+
+  const handleOpenMateriAwal = () => {
+    handleNavigate('materi-awal');
   };
 
   // Phase 1: Engage handlers
@@ -208,8 +239,17 @@ export default function App() {
         {progress.currentPhase === 'home' && (
           <HomeSection
             progress={progress}
-            onNavigate={handleNavigate}
-            onResetProgress={() => setShowResetConfirm(true)}
+            onUpdateIdentity={handleUpdateIdentity}
+            onOpenOrientationBlock={handleOpenOrientationBlock}
+            onStartLearning={handleStartLearning}
+            onOpenMateriAwal={handleOpenMateriAwal}
+          />
+        )}
+
+        {progress.currentPhase === 'materi-awal' && (
+          <MateriAwalSection
+            onBackToHome={() => handleNavigate('home')}
+            onProceedToEngage={() => handleNavigate('engage')}
           />
         )}
 
