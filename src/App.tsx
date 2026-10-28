@@ -15,10 +15,16 @@ import { ExplainSection } from './components/ExplainSection';
 import { ElaborateSection } from './components/ElaborateSection';
 import { EvaluateSection } from './components/EvaluateSection';
 import { ReflectSection } from './components/ReflectSection';
+import { Phage3DScene } from './components/3d/Phage3DScene';
+import { PhageGameModal } from './components/game/PhageGameModal';
+import { VirologyChatbot } from './components/ai/VirologyChatbot';
+import { BioscienceHub } from './components/science/BioscienceHub';
+import { ChevronLeft, Sparkles, Gamepad2 } from 'lucide-react';
 
 export default function App() {
   const [progress, setProgress] = useState<UserProgress>(() => loadUserProgress());
   const [showResetConfirm, setShowResetConfirm] = useState<boolean>(false);
+  const [isGameOpen, setIsGameOpen] = useState<boolean>(false);
 
   // Sync to localStorage whenever progress state updates
   useEffect(() => {
@@ -232,6 +238,7 @@ export default function App() {
         currentPhase={progress.currentPhase}
         progress={progress}
         onNavigate={handleNavigate}
+        onOpenGame={() => setIsGameOpen(true)}
       />
 
       {/* Active Phase Content Container */}
@@ -243,6 +250,10 @@ export default function App() {
             onOpenOrientationBlock={handleOpenOrientationBlock}
             onStartLearning={handleStartLearning}
             onOpenMateriAwal={handleOpenMateriAwal}
+            onOpenLab3D={() => handleNavigate('lab-3d')}
+            onOpenGame={() => setIsGameOpen(true)}
+            onOpenChatAI={() => handleNavigate('chat-ai')}
+            onOpenScienceHub={() => handleNavigate('science-hub')}
           />
         )}
 
@@ -315,7 +326,73 @@ export default function App() {
             onResetAll={() => setShowResetConfirm(true)}
           />
         )}
+
+        {/* Feature 1: Laboratorium 3D Interaktif (Three.js) */}
+        {progress.currentPhase === 'lab-3d' && (
+          <div className="max-w-[1240px] mx-auto px-4 sm:px-6 py-6 sm:py-8 space-y-6 animate-in fade-in">
+            {/* Header & Back breadcrumb */}
+            <div className="flex flex-wrap items-center justify-between gap-4">
+              <button
+                type="button"
+                onClick={() => handleNavigate('home')}
+                className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-600 hover:text-blue-600 transition-colors cursor-pointer"
+              >
+                <ChevronLeft className="w-4 h-4" /> Kembali ke Beranda
+              </button>
+
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => setIsGameOpen(true)}
+                  className="px-3 py-1.5 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-white text-xs font-bold shadow-xs flex items-center gap-1.5 transition-all cursor-pointer"
+                >
+                  <Gamepad2 className="w-3.5 h-3.5" />
+                  <span>Mainkan Game 3D</span>
+                </button>
+              </div>
+            </div>
+
+            <Phage3DScene />
+          </div>
+        )}
+
+        {/* Feature 2 & 3: Tanya BioAI (Gemini 3.8 Flash + Google Search Grounding) */}
+        {progress.currentPhase === 'chat-ai' && (
+          <div className="max-w-[1000px] mx-auto px-4 sm:px-6 py-6 sm:py-8 space-y-6 animate-in fade-in">
+            <div className="flex items-center justify-between">
+              <button
+                type="button"
+                onClick={() => handleNavigate('home')}
+                className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-600 hover:text-blue-600 transition-colors cursor-pointer"
+              >
+                <ChevronLeft className="w-4 h-4" /> Kembali ke Beranda
+              </button>
+            </div>
+
+            <VirologyChatbot />
+          </div>
+        )}
+
+        {/* Feature 4: Pusat Biosains & Genomika (NCBI RefSeq & PDB) */}
+        {progress.currentPhase === 'science-hub' && (
+          <div className="max-w-[1240px] mx-auto px-4 sm:px-6 py-6 sm:py-8 space-y-6 animate-in fade-in">
+            <div className="flex items-center justify-between">
+              <button
+                type="button"
+                onClick={() => handleNavigate('home')}
+                className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-600 hover:text-blue-600 transition-colors cursor-pointer"
+              >
+                <ChevronLeft className="w-4 h-4" /> Kembali ke Beranda
+              </button>
+            </div>
+
+            <BioscienceHub />
+          </div>
+        )}
       </main>
+
+      {/* Feature 5: Full-Viewport 3D Game Shell (Phage Attack) */}
+      <PhageGameModal isOpen={isGameOpen} onClose={() => setIsGameOpen(false)} />
 
       {/* Confirmation Modal for Resetting Progress */}
       {showResetConfirm && (

@@ -13,18 +13,24 @@ import {
   ChevronDown,
   User,
   Sparkles,
+  Box,
+  Gamepad2,
+  Bot,
+  Database,
 } from 'lucide-react';
 
 interface NavbarProps {
   currentPhase: LearningPhase;
   progress: UserProgress;
   onNavigate: (phase: LearningPhase) => void;
+  onOpenGame?: () => void;
 }
 
 export const Navbar: React.FC<NavbarProps> = ({
   currentPhase,
   progress,
   onNavigate,
+  onOpenGame,
 }) => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [profileDropdownOpen, setProfileDropdownOpen] = useState(false);
@@ -211,26 +217,84 @@ export const Navbar: React.FC<NavbarProps> = ({
 
           {/* Right Action Icons & Student Profile Badge */}
           <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
+            {/* Lab 3D Button */}
+            <button
+              type="button"
+              onClick={() => onNavigate('lab-3d')}
+              className={`p-2 sm:px-2.5 sm:py-1.5 rounded-xl text-xs font-semibold transition-all flex items-center gap-1.5 cursor-pointer border ${
+                currentPhase === 'lab-3d'
+                  ? 'bg-blue-600 text-white border-blue-600 shadow-xs'
+                  : 'text-slate-700 bg-slate-50 hover:bg-blue-50 hover:text-blue-700 border-slate-200'
+              }`}
+              title="Laboratorium 3D Interaktif"
+            >
+              <Box className="w-3.5 h-3.5 text-blue-500" />
+              <span className="hidden sm:inline">Lab 3D</span>
+            </button>
+
+            {/* Game 3D Button */}
+            {onOpenGame && (
+              <button
+                type="button"
+                onClick={onOpenGame}
+                className="px-2.5 py-1.5 rounded-xl text-xs font-bold bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-white shadow-xs transition-all flex items-center gap-1.5 cursor-pointer active:scale-95"
+                title="Mainkan Game 3D: Phage Attack"
+              >
+                <Gamepad2 className="w-3.5 h-3.5" />
+                <span className="hidden md:inline">Game 3D</span>
+              </button>
+            )}
+
+            {/* Tanya BioAI Button */}
+            <button
+              type="button"
+              onClick={() => onNavigate('chat-ai')}
+              className={`p-2 sm:px-2.5 sm:py-1.5 rounded-xl text-xs font-semibold transition-all flex items-center gap-1.5 cursor-pointer border ${
+                currentPhase === 'chat-ai'
+                  ? 'bg-indigo-600 text-white border-indigo-600 shadow-xs'
+                  : 'text-slate-700 bg-slate-50 hover:bg-indigo-50 hover:text-indigo-700 border-slate-200'
+              }`}
+              title="Tanya Dr. Vira (AI Tutor Virologi)"
+            >
+              <Bot className="w-3.5 h-3.5 text-indigo-500" />
+              <span className="hidden md:inline">Tanya BioAI</span>
+            </button>
+
+            {/* Pusat Sains Button */}
+            <button
+              type="button"
+              onClick={() => onNavigate('science-hub')}
+              className={`p-2 sm:px-2.5 sm:py-1.5 rounded-xl text-xs font-semibold transition-all flex items-center gap-1.5 cursor-pointer border ${
+                currentPhase === 'science-hub'
+                  ? 'bg-emerald-600 text-white border-emerald-600 shadow-xs'
+                  : 'text-slate-700 bg-slate-50 hover:bg-emerald-50 hover:text-emerald-700 border-slate-200'
+              }`}
+              title="Pusat Sains & Basis Data Genom"
+            >
+              <Database className="w-3.5 h-3.5 text-emerald-600" />
+              <span className="hidden lg:inline">Pusat Sains</span>
+            </button>
+
             {/* Glosarium Button */}
             <button
               type="button"
               onClick={() => setGlossaryOpen(true)}
-              className="p-2 sm:px-3 sm:py-1.5 rounded-xl text-xs font-medium text-slate-700 hover:bg-slate-100 border border-slate-200/80 transition-colors flex items-center gap-1.5 cursor-pointer"
+              className="p-2 sm:px-2.5 sm:py-1.5 rounded-xl text-xs font-medium text-slate-700 hover:bg-slate-100 border border-slate-200/80 transition-colors flex items-center gap-1.5 cursor-pointer"
               title="Buka Glosarium Istilah"
             >
               <BookOpen className="w-4 h-4 text-blue-600" />
-              <span className="hidden sm:inline">Glosarium</span>
+              <span className="hidden xl:inline">Glosarium</span>
             </button>
 
             {/* Bantuan Button */}
             <button
               type="button"
               onClick={() => setHelpOpen(true)}
-              className="p-2 sm:px-3 sm:py-1.5 rounded-xl text-xs font-medium text-slate-700 hover:bg-slate-100 border border-slate-200/80 transition-colors flex items-center gap-1.5 cursor-pointer"
+              className="p-2 sm:px-2.5 sm:py-1.5 rounded-xl text-xs font-medium text-slate-700 hover:bg-slate-100 border border-slate-200/80 transition-colors flex items-center gap-1.5 cursor-pointer"
               title="Bantuan & Petunjuk"
             >
               <HelpCircle className="w-4 h-4 text-indigo-600" />
-              <span className="hidden sm:inline">Bantuan</span>
+              <span className="hidden xl:inline">Bantuan</span>
             </button>
 
             {/* Student Profile Dropdown */}
@@ -345,6 +409,84 @@ export const Navbar: React.FC<NavbarProps> = ({
             >
               <span>Materi Awal (Opsional)</span>
               {currentPhase === 'materi-awal' && <span className="w-2 h-2 rounded-full bg-white" />}
+            </button>
+
+            {/* Interactive 3D Lab */}
+            <button
+              type="button"
+              onClick={() => {
+                onNavigate('lab-3d');
+                setMobileMenuOpen(false);
+              }}
+              className={`text-left px-3 py-2 rounded-xl text-xs font-semibold flex items-center justify-between ${
+                currentPhase === 'lab-3d'
+                  ? 'bg-blue-600 text-white font-bold'
+                  : 'text-slate-700 hover:bg-blue-50 hover:text-blue-700'
+              }`}
+            >
+              <div className="flex items-center gap-2">
+                <Box className="w-4 h-4 text-blue-500" />
+                <span>Laboratorium 3D Bakteriofag</span>
+              </div>
+              <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-blue-100 text-blue-800">3D</span>
+            </button>
+
+            {/* Game 3D Modal Trigger */}
+            {onOpenGame && (
+              <button
+                type="button"
+                onClick={() => {
+                  onOpenGame();
+                  setMobileMenuOpen(false);
+                }}
+                className="text-left px-3 py-2 rounded-xl text-xs font-bold bg-amber-50 text-amber-900 border border-amber-200 flex items-center justify-between"
+              >
+                <div className="flex items-center gap-2">
+                  <Gamepad2 className="w-4 h-4 text-amber-600" />
+                  <span>Game 3D: Phage Attack</span>
+                </div>
+                <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-amber-500 text-white">MAIN</span>
+              </button>
+            )}
+
+            {/* Tanya BioAI Link */}
+            <button
+              type="button"
+              onClick={() => {
+                onNavigate('chat-ai');
+                setMobileMenuOpen(false);
+              }}
+              className={`text-left px-3 py-2 rounded-xl text-xs font-semibold flex items-center justify-between ${
+                currentPhase === 'chat-ai'
+                  ? 'bg-indigo-600 text-white font-bold'
+                  : 'text-slate-700 hover:bg-indigo-50 hover:text-indigo-700'
+              }`}
+            >
+              <div className="flex items-center gap-2">
+                <Bot className="w-4 h-4 text-indigo-500" />
+                <span>Tanya Dr. Vira (AI Tutor)</span>
+              </div>
+              <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-indigo-100 text-indigo-800">Gemini</span>
+            </button>
+
+            {/* Pusat Sains Link */}
+            <button
+              type="button"
+              onClick={() => {
+                onNavigate('science-hub');
+                setMobileMenuOpen(false);
+              }}
+              className={`text-left px-3 py-2 rounded-xl text-xs font-semibold flex items-center justify-between ${
+                currentPhase === 'science-hub'
+                  ? 'bg-emerald-600 text-white font-bold'
+                  : 'text-slate-700 hover:bg-emerald-50 hover:text-emerald-700'
+              }`}
+            >
+              <div className="flex items-center gap-2">
+                <Database className="w-4 h-4 text-emerald-600" />
+                <span>Pusat Sains & Basis Data Genom</span>
+              </div>
+              <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-800">NCBI</span>
             </button>
 
             {phaseConfig.map((item) => {

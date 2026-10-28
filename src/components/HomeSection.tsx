@@ -26,6 +26,10 @@ import {
   Sparkles,
   User,
   GraduationCap,
+  Box,
+  Gamepad2,
+  Bot,
+  Database,
 } from 'lucide-react';
 
 interface HomeSectionProps {
@@ -34,6 +38,10 @@ interface HomeSectionProps {
   onOpenOrientationBlock: (blockKey: keyof OrientationBlocksOpened) => void;
   onStartLearning: () => void;
   onOpenMateriAwal: () => void;
+  onOpenLab3D?: () => void;
+  onOpenGame?: () => void;
+  onOpenChatAI?: () => void;
+  onOpenScienceHub?: () => void;
 }
 
 export const HomeSection: React.FC<HomeSectionProps> = ({
@@ -42,6 +50,10 @@ export const HomeSection: React.FC<HomeSectionProps> = ({
   onOpenOrientationBlock,
   onStartLearning,
   onOpenMateriAwal,
+  onOpenLab3D,
+  onOpenGame,
+  onOpenChatAI,
+  onOpenScienceHub,
 }) => {
   const { student, orientationBlocks } = progress;
 
@@ -696,6 +708,119 @@ export const HomeSection: React.FC<HomeSectionProps> = ({
             ))}
           </div>
         )}
+      </section>
+
+      {/* ============================================================== */}
+      {/* FITUR UNGGULAN: 3D LAB, GAME 3D, TANYA BIOAI, PUSAT SAINS */}
+      {/* ============================================================== */}
+      <section className="bg-gradient-to-br from-slate-900 via-blue-950 to-slate-900 text-white rounded-3xl p-6 sm:p-8 border border-slate-800 shadow-md">
+        <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
+          <div>
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-500/20 text-blue-300 border border-blue-400/30 text-[11px] font-mono font-semibold uppercase tracking-wider mb-2">
+              <Sparkles className="w-3.5 h-3.5" /> FITUR MULTIMEDIA INTERAKTIF
+            </div>
+            <h3 className="font-heading font-extrabold text-lg sm:text-xl text-white tracking-tight">
+              Eksplorasi Lanjutan: Laboratorium 3D, Game & Biosains
+            </h3>
+            <p className="text-xs text-slate-300 mt-1 max-w-xl">
+              Perdalam pemahaman konsep replikasi bakteriofag melalui visualisasi 3D WebGL, simulasi game interaktif, dan tutor pintar virologi.
+            </p>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          {/* Card 1: Lab 3D */}
+          <button
+            type="button"
+            onClick={onOpenLab3D}
+            className="group p-5 rounded-2xl bg-white/5 hover:bg-white/10 border border-white/10 hover:border-blue-400/50 transition-all text-left flex flex-col justify-between cursor-pointer"
+          >
+            <div>
+              <div className="w-10 h-10 rounded-xl bg-blue-600/30 border border-blue-500/40 text-blue-400 flex items-center justify-center mb-3 group-hover:scale-105 transition-transform">
+                <Box className="w-5 h-5" />
+              </div>
+              <h4 className="font-heading font-bold text-sm text-white group-hover:text-blue-300 transition-colors">
+                Laboratorium 3D
+              </h4>
+              <p className="text-xs text-slate-400 mt-1 leading-relaxed">
+                Inspeksi model 3D Three.js realistis, mode tembus pandang X-Ray genom, dan simulasi injeksi.
+              </p>
+            </div>
+            <div className="mt-4 pt-3 border-t border-white/10 flex items-center justify-between text-xs text-blue-400 font-semibold">
+              <span>Buka Lab 3D</span>
+              <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
+            </div>
+          </button>
+
+          {/* Card 2: Game 3D */}
+          <button
+            type="button"
+            onClick={onOpenGame}
+            className="group p-5 rounded-2xl bg-gradient-to-b from-amber-500/10 to-orange-500/5 hover:from-amber-500/20 hover:to-orange-500/10 border border-amber-500/30 hover:border-amber-400/60 transition-all text-left flex flex-col justify-between cursor-pointer"
+          >
+            <div>
+              <div className="w-10 h-10 rounded-xl bg-amber-500/30 border border-amber-500/40 text-amber-300 flex items-center justify-center mb-3 group-hover:scale-105 transition-transform">
+                <Gamepad2 className="w-5 h-5" />
+              </div>
+              <h4 className="font-heading font-bold text-sm text-amber-200 group-hover:text-amber-100 transition-colors">
+                Game 3D: Phage Attack
+              </h4>
+              <p className="text-xs text-slate-400 mt-1 leading-relaxed">
+                Kendalikan bakteriofag, lakukan docking reseptor, suntikkan genom, dan capai ledakan lisis!
+              </p>
+            </div>
+            <div className="mt-4 pt-3 border-t border-amber-500/20 flex items-center justify-between text-xs text-amber-400 font-bold">
+              <span>Mainkan Sekarang</span>
+              <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
+            </div>
+          </button>
+
+          {/* Card 3: Tanya BioAI */}
+          <button
+            type="button"
+            onClick={onOpenChatAI}
+            className="group p-5 rounded-2xl bg-white/5 hover:bg-white/10 border border-white/10 hover:border-indigo-400/50 transition-all text-left flex flex-col justify-between cursor-pointer"
+          >
+            <div>
+              <div className="w-10 h-10 rounded-xl bg-indigo-600/30 border border-indigo-500/40 text-indigo-400 flex items-center justify-center mb-3 group-hover:scale-105 transition-transform">
+                <Bot className="w-5 h-5" />
+              </div>
+              <h4 className="font-heading font-bold text-sm text-white group-hover:text-indigo-300 transition-colors">
+                Tanya Dr. Vira (BioAI)
+              </h4>
+              <p className="text-xs text-slate-400 mt-1 leading-relaxed">
+                Tutor AI virologi multi-turn berbasis Gemini 3.8 Flash dengan pencarian fakta Google Search.
+              </p>
+            </div>
+            <div className="mt-4 pt-3 border-t border-white/10 flex items-center justify-between text-xs text-indigo-400 font-semibold">
+              <span>Mulai Diskusi</span>
+              <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
+            </div>
+          </button>
+
+          {/* Card 4: Pusat Sains */}
+          <button
+            type="button"
+            onClick={onOpenScienceHub}
+            className="group p-5 rounded-2xl bg-white/5 hover:bg-white/10 border border-white/10 hover:border-emerald-400/50 transition-all text-left flex flex-col justify-between cursor-pointer"
+          >
+            <div>
+              <div className="w-10 h-10 rounded-xl bg-emerald-600/30 border border-emerald-500/40 text-emerald-400 flex items-center justify-center mb-3 group-hover:scale-105 transition-transform">
+                <Database className="w-5 h-5" />
+              </div>
+              <h4 className="font-heading font-bold text-sm text-white group-hover:text-emerald-300 transition-colors">
+                Pusat Sains & Genomika
+              </h4>
+              <p className="text-xs text-slate-400 mt-1 leading-relaxed">
+                Data resmi NCBI RefSeq, struktur kristal gp23*, sakelar molekuler Cro/cI, dan terapi fag.
+              </p>
+            </div>
+            <div className="mt-4 pt-3 border-t border-white/10 flex items-center justify-between text-xs text-emerald-400 font-semibold">
+              <span>Buka Basis Data</span>
+              <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
+            </div>
+          </button>
+        </div>
       </section>
 
       {/* ============================================================== */}

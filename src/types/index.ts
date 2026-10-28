@@ -6,7 +6,10 @@ export type LearningPhase =
   | 'explain'
   | 'elaborate'
   | 'evaluate'
-  | 'reflect';
+  | 'reflect'
+  | 'lab-3d'
+  | 'chat-ai'
+  | 'science-hub';
 
 export interface StudentIdentity {
   namaLengkap: string;
